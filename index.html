@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>CBPAI Student Live Data</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial;
@@ -39,12 +40,13 @@
 <body>
 
 <h2>📊 Live CBPAI Student Responses</h2>
-<h3>📊 Analytics</h3>
+<h3>📊 Analytics Dashboard</h3>
 
-<div id="stateCount"></div>
-<br>
-<div id="cbpaiCount"></div>
-<br>
+<canvas id="stateChart" width="400" height="200"></canvas>
+<br><br>
+<canvas id="cbpaiChart" width="400" height="200"></canvas>
+<br><br>
+
 <table id="dataTable">
   <thead></thead>
   <tbody></tbody>
@@ -55,12 +57,12 @@ fetch("https://script.google.com/macros/s/AKfycbyp8WatkRdlf6rkk42ZP4a99pV6BUkAg0
   .then(response => response.json())
   .then(data => {
 
+    // ================= TABLE =================
     const tableHead = document.querySelector("#dataTable thead");
     const tableBody = document.querySelector("#dataTable tbody");
 
     let headers = Object.keys(data[0]);
 
-    // ================= TABLE =================
     let headRow = "<tr>";
     headers.forEach(h => headRow += `<th>${h}</th>`);
     headRow += "</tr>";
@@ -80,35 +82,54 @@ fetch("https://script.google.com/macros/s/AKfycbyp8WatkRdlf6rkk42ZP4a99pV6BUkAg0
     let noCount = 0;
 
     data.forEach(row => {
-
-      // State-wise count
       let state = row["State"];
       stateCounts[state] = (stateCounts[state] || 0) + 1;
 
-      // CBPAI Basics Yes/No
       let cbpai = row["Completed CBPAI Basics"];
       if (cbpai.toLowerCase() === "yes") yesCount++;
       else noCount++;
     });
 
-    // Display State-wise count
-    let stateHTML = "<h4>📍 State-wise Count</h4><ul>";
-    for (let state in stateCounts) {
-      stateHTML += `<li>${state}: ${stateCounts[state]}</li>`;
-    }
-    stateHTML += "</ul>";
-    document.getElementById("stateCount").innerHTML = stateHTML;
+    // ================= STATE BAR CHART =================
+    const stateLabels = Object.keys(stateCounts);
+    const stateValues = Object.values(stateCounts);
 
-    // Display Yes/No count
-    let cbpaiHTML = `
-      <h4>✅ CBPAI Basics Completion</h4>
-      <p style="color:green;">Yes: ${yesCount}</p>
-      <p style="color:red;">No: ${noCount}</p>
-    `;
-    document.getElementById("cbpaiCount").innerHTML = cbpaiHTML;
+    new Chart(document.getElementById("stateChart"), {
+      type: "bar",
+      data: {
+        labels: stateLabels,
+        datasets: [{
+          label: "Students per State",
+          data: stateValues,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+
+    // ================= CBPAI PIE CHART =================
+    new Chart(document.getElementById("cbpaiChart"), {
+      type: "pie",
+      data: {
+        labels: ["Yes", "No"],
+        datasets: [{
+          data: [yesCount, noCount],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true
+      }
+    });
 
   });
 </script>
+
 
 
 </body>
