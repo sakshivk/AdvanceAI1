@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CBPAI Student Live Data</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f6f8;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #2c3e50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📊 Live CBPAI Student Responses</h2>
+
+<table id="dataTable">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+fetch("https://script.google.com/macros/s/AKfycbzwcmiYfOMgdvIBmtNH_swfXk32nUUmh7ox305SWMDXdXPxJc-79udyc1xhCtWXKtTpPA/exec")
+  .then(response => response.json())
+  .then(data => {
+    const tableHead = document.querySelector("#dataTable thead");
+    const tableBody = document.querySelector("#dataTable tbody");
+
+    // headers
+    let headers = Object.keys(data[0]);
+    let headRow = "<tr>";
+    headers.forEach(h => headRow += `<th>${h}</th>`);
+    headRow += "</tr>";
+    tableHead.innerHTML = headRow;
+
+    // rows
+    data.forEach(row => {
+      let tr = "<tr>";
+      headers.forEach(h => tr += `<td>${row[h]}</td>`);
+      tr += "</tr>";
+      tableBody.innerHTML += tr;
+    });
+  });
+</script>
+
+</body>
+</html>
