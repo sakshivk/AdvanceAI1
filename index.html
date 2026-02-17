@@ -25,12 +25,26 @@
     tr:nth-child(even) {
       background: #f2f2f2;
     }
+
+    #stateCount, #cbpaiCount {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+  width: 300px;
+}
+
   </style>
 </head>
 <body>
 
 <h2>📊 Live CBPAI Student Responses</h2>
+<h3>📊 Analytics</h3>
 
+<div id="stateCount"></div>
+<br>
+<div id="cbpaiCount"></div>
+<br>
 <table id="dataTable">
   <thead></thead>
   <tbody></tbody>
@@ -40,25 +54,62 @@
 fetch("https://script.google.com/macros/s/AKfycbyp8WatkRdlf6rkk42ZP4a99pV6BUkAg0wpRQ6mtsJGVTFlaCv3KbfX39ldsSZBuvUB/exec")
   .then(response => response.json())
   .then(data => {
+
     const tableHead = document.querySelector("#dataTable thead");
     const tableBody = document.querySelector("#dataTable tbody");
 
-    // headers
     let headers = Object.keys(data[0]);
+
+    // ================= TABLE =================
     let headRow = "<tr>";
     headers.forEach(h => headRow += `<th>${h}</th>`);
     headRow += "</tr>";
     tableHead.innerHTML = headRow;
 
-    // rows
     data.forEach(row => {
       let tr = "<tr>";
       headers.forEach(h => tr += `<td>${row[h]}</td>`);
       tr += "</tr>";
       tableBody.innerHTML += tr;
     });
+
+    // ================= ANALYTICS =================
+
+    let stateCounts = {};
+    let yesCount = 0;
+    let noCount = 0;
+
+    data.forEach(row => {
+
+      // State-wise count
+      let state = row["State"];
+      stateCounts[state] = (stateCounts[state] || 0) + 1;
+
+      // CBPAI Basics Yes/No
+      let cbpai = row["Completed CBPAI Basics"];
+      if (cbpai.toLowerCase() === "yes") yesCount++;
+      else noCount++;
+    });
+
+    // Display State-wise count
+    let stateHTML = "<h4>📍 State-wise Count</h4><ul>";
+    for (let state in stateCounts) {
+      stateHTML += `<li>${state}: ${stateCounts[state]}</li>`;
+    }
+    stateHTML += "</ul>";
+    document.getElementById("stateCount").innerHTML = stateHTML;
+
+    // Display Yes/No count
+    let cbpaiHTML = `
+      <h4>✅ CBPAI Basics Completion</h4>
+      <p style="color:green;">Yes: ${yesCount}</p>
+      <p style="color:red;">No: ${noCount}</p>
+    `;
+    document.getElementById("cbpaiCount").innerHTML = cbpaiHTML;
+
   });
 </script>
+
 
 </body>
 </html>
